@@ -1,6 +1,6 @@
 # .dockerignore & .gitignore
-.git
-.github
+
+
 *.pyc
 __pycache__
 node_modules
