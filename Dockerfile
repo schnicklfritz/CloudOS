@@ -30,9 +30,11 @@ RUN useradd -m -s /bin/bash fritz && \
 # 4. Install Miniconda as fritz
 USER fritz
 WORKDIR /home/fritz
-RUN wget https://repo.anaconda.com -O https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh && \
-    bash https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -b -p /home/fritz/miniconda3 && \
-    rm Miniconda3-latest-Linux-x86_64.sh
+
+RUN wget -q "https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh" -O /tmp/miniconda.sh \
+ && bash /tmp/miniconda.sh -b -p /home/fritz/miniconda3 \
+ && rm -f /tmp/miniconda.sh
+
 ENV PATH="/home/fritz/miniconda3/bin:${PATH}"
 
 # 5. Configs & Entrypoint (Switch back to root to handle volume logic)
