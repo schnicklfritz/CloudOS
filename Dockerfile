@@ -28,7 +28,7 @@ RUN apt-get autoremove -y && \
 RUN groupadd -r fritz && \
     useradd -r -m -s /bin/bash -g fritz fritz && \
     echo "fritz:qwerty" | chpasswd && \
-    usermod -aG sudo,audio,video fritz && \
+    usermod -aG sudo,audio,video && \
     echo "fritz ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers.d/fritz && \
     chmod 0440 /etc/sudoers.d/fritz
 
