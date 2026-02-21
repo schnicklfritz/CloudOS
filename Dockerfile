@@ -4,6 +4,9 @@ LABEL maintainer="schnicklfritz"
 ENV DEBIAN_FRONTEND=noninteractive
 ENV RESOLUTION=1920x1080
 
+RUN groupadd -r fritz && \
+    useradd -r -m -g fritz -s /bin/bash fritz
+
 # 1. Install minimal XFCE + essentials
 RUN apt-get update && apt-get install -y --no-install-recommends \
     dbus-x11 openssh-server xvfb xfonts-base xfce4 xfce4-goodies xfce4-session \
@@ -21,11 +24,13 @@ RUN apt-get autoremove -y && \
            /var/cache/apt/* /tmp/* /var/tmp/* && \
     apt-get clean && df -h
 
-# 2. Setup User "fritz"
-RUN useradd -m -s /bin/bash fritz && \
+# 2. Setup User "fritz" (complete, secure)
+RUN groupadd -r fritz && \
+    useradd -r -m -s /bin/bash -g fritz fritz && \
     echo "fritz:qwerty" | chpasswd && \
     usermod -aG sudo,audio,video fritz && \
-    echo "fritz ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+    echo "fritz ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers.d/fritz && \
+    chmod 0440 /etc/sudoers.d/fritz
 
 # 3. Miniconda as fritz
 USER fritz
