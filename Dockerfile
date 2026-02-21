@@ -42,8 +42,7 @@ RUN apt-get update && apt-get install -y wget gnupg && \
     wget https://github.com/kasmtech/KasmVNC/releases/download/v1.4.0/kasmvncserver_jammy_1.4.0_amd64.deb && \
     sudo dpkg -i kasmvncserver_jammy_1.4.0_amd64.deb && \
     apt-get install -f -y && apt-get clean && \
-    rm kasmvncserver_jammy_1.4.0_amd64.deb
-
+    rm kasmvncserver_jammy_1.4.0_amd64.deb \
     mkdir -p /usr/share/novnc /defaults && \
     chown -R fritz:fritz /etc/kasmvnc /home/fritz && \
     echo "fritz:qwerty" | kasmvncpasswd -f > /home/fritz/.vnc/passwd && \
