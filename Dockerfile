@@ -32,6 +32,7 @@ WORKDIR /home/fritz
 RUN wget -q "https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh" -O /tmp/miniconda.sh && \
    bash /tmp/miniconda.sh -b -p /home/fritz/miniconda3 && \
    rm -f /tmp/miniconda.sh
+
 ENV PATH="/home/fritz/miniconda3/bin:${PATH}"
 
 # 5. Configs & Entrypoint (Switch back to root to handle volume logic)

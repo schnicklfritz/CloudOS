@@ -14,11 +14,5 @@ if [ -d "/workspace" ]; then
     chown -R fritz:fritz /workspace/home
 fi
 
-# 3. Set VNC Password for fritz
-mkdir -p /home/fritz/.vnc
-echo "qwerty" | vncpasswd -f > /home/fritz/.vnc/passwd
-chown -R fritz:fritz /home/fritz/.vnc
-chmod 600 /home/fritz/.vnc/passwd
-
-# 4. Start Supervisord
+# 3. Start Supervisord
 exec /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf
