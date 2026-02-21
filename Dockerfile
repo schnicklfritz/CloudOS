@@ -14,8 +14,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # STRIP BLOOT (~3GB): manpages, docs, locales, cache
-RUN apt-get purge -y man-db && \
-    apt-get autoremove -y && \
+RUN apt-get autoremove -y && \
     find /usr/share/doc -depth -type f -delete && \
     find /usr/share/man -depth -type f -delete && \
     rm -rf /usr/share/locale/* /usr/share/i18n/locales/* \
