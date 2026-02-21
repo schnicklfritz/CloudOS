@@ -35,11 +35,18 @@ RUN wget -q "https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.
     bash /tmp/miniconda.sh -b -p /home/fritz/miniconda3 && \
     rm -f /tmp/miniconda.sh
 
-# Create the dummy password file and xstartup script so TigerVNC boots
-RUN mkdir -p /home/fritz/.vnc && \
+# UNMINIMIZE XFCE + Create VNC files (this restores all XFCE symlinks/fonts)
+RUN unminimize && \
+    mkdir -p /home/fritz/.vnc && \
     touch /home/fritz/.vnc/passwd && \
     chmod 600 /home/fritz/.vnc/passwd && \
-    echo '#!/bin/bash\nstartxfce4 &' > /home/fritz/.vnc/xstartup && \
+    echo '#!/bin/bash
+unset SESSION_MANAGER
+unset DBUS_SESSION_BUS_ADDRESS
+[ -r $HOME/.Xresources ] && xrdb $HOME/.Xresources
+xsetroot -solid grey
+vncconfig -iconic &
+startxfce4 &' > /home/fritz/.vnc/xstartup && \
     chmod +x /home/fritz/.vnc/xstartup
 
 ENV PATH="/home/fritz/miniconda3/bin:${PATH}"
