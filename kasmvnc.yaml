@@ -1,0 +1,11 @@
+listen: 0.0.0.0
+port: 6901
+users:
+  - name: fritz
+    passwd: qwerty
+    roles: [user]
+    properties:
+      enable_hw_vnc: true
+      hw_video_encoding: h264
+      desktop: XFCE
+max_clients: 5

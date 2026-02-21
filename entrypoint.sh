@@ -1,18 +1,25 @@
 #!/bin/bash
 set -e
 
-# 2. Persistence Logic for /workspace
-if [ -d "/workspace" ]; then
-    if [ ! -d "/workspace/home" ]; then
-        echo "Initializing persistent home in /workspace/home..."
-        cp -rp /home/fritz /workspace/home
-    fi
-    # Remove local home and symlink to workspace
-    rm -rf /home/fritz
-    ln -s /workspace/home /home/fritz
-    # Fix ownership in case of UID mismatch
-    chown -R fritz:fritz /workspace/home
+# Wait for GPU
+nvidia-smi || true
+
+# Init KasmVNC config if missing
+if [ ! -f /etc/kasmvnc/kasmvnc.yaml ]; then
+  cp /defaults/kasmvnc.yaml /etc/kasmvnc/kasmvnc.yaml
+  chown fritz:fritz /etc/kasmvnc/kasmvnc.yaml
 fi
 
-# 3. Start Supervisord
+# Fix perms
+chown -R fritz:fritz /home/fritz/.vnc /etc/kasmvnc
+
+# Start dbus for XFCE (Kasm needs it)
+export XDG_RUNTIME_DIR=/run/user/1000
+mkdir -p $XDG_RUNTIME_DIR
+chown fritz:fritz $XDG_RUNTIME_DIR
+
+# Sleep for deps
+sleep 3
+
+# Supervisor
 exec /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf

@@ -17,4 +17,4 @@ jobs:
         with:
           context: .
           push: true
-          tags: schnicklbob/cloudos:latest
+          tags: schnicklbob/gpu-kasm-desktop:latest
