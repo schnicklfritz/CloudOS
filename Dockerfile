@@ -29,10 +29,10 @@ RUN groupadd -r fritz && \
     echo "fritz ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers.d/fritz && \
     chmod 0440 /etc/sudoers.d/fritz
 
-# ENV first (template defaults)
-ENV USER=fritz \
-    PASSWORD=qwerty \
-    REMOTE_DESKTOP=kasmvnc
+# ARG first (template defaults)
+ARG USER=fritz \
+ARG PASSWORD=qwerty
+   
 
 # 3. Miniconda as fritz
 USER fritz
@@ -59,11 +59,11 @@ RUN rm *.deb && \
     mkdir -p /usr/share/novnc /defaults && \
     chown -R fritz:fritz /etc/kasmvnc /home/fritz
 
-# VNC password (man page exact)
+# Password setup (uses ARG at build; runtime ENV for service)
 RUN mkdir -p /home/${USER}/.vnc && \
-    printf "${PASSWORD}\n${PASSWORD}\n" | kasmvncpasswd -u ${USER} -w > /dev/null && \
-    chmod 600 /home/${USER}/.vnc/kasmvnc.passwd && \
-    chown -R ${USER}:${USER} /home/${USER}/.vnc
+    chown ${USER}:${USER} /home/${USER}/.vnc && \
+    su - ${USER} -c "printf '${PASSWORD}\n${PASSWORD}\n' | kasmvncpasswd -u ${USER} -w" && \
+    chmod 600 /home/${USER}/.vnc/kasmvnc.passwd
 
 # Copy configs
 COPY kasmvnc.yaml /etc/kasmvnc/kasmvnc.yaml
