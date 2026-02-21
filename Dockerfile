@@ -4,9 +4,6 @@ LABEL maintainer="schnicklfritz"
 ENV DEBIAN_FRONTEND=noninteractive
 ENV RESOLUTION=1920x1080
 
-RUN groupadd -r fritz && \
-    useradd -r -m -g fritz -s /bin/bash fritz
-
 # 1. Install minimal XFCE + essentials
 RUN apt-get update && apt-get install -y --no-install-recommends \
     dbus-x11 openssh-server xvfb xfonts-base xfce4 xfce4-goodies xfce4-session \
