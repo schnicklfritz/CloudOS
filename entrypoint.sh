@@ -1,13 +1,6 @@
 #!/bin/bash
 set -e
 
-# 1. KVM Check
-if [ ! -e /dev/kvm ]; then
-    echo "WARNING: /dev/kvm not found. QEMU will run without hardware acceleration."
-else
-    chmod 666 /dev/kvm
-fi
-
 # 2. Persistence Logic for /workspace
 if [ -d "/workspace" ]; then
     if [ ! -d "/workspace/home" ]; then
