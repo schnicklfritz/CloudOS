@@ -40,7 +40,7 @@ USER root
 RUN apt-get update && apt-get install -y \
     libtry-tiny-perl libdatetime-perl libdatetime-timezone-perl \
     libwww-perl libjson-perl libfile-which-perl libipc-run-perl \
-    libio-socket-ssl-pearl && \
+    libio-socket-ssl-perl && \
     wget https://github.com/kasmtech/KasmVNC/releases/download/v1.4.0/kasmvncserver_jammy_1.4.0_amd64.deb && \
     dpkg -i kasmvncserver_jammy_1.4.0_amd64.deb && \
     apt-get install -f -y && apt-get clean && rm *.deb \
