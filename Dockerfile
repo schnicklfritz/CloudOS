@@ -23,7 +23,7 @@ RUN apt-get update && apt-get install -y nodejs npm \
 # 3. Setup User "fritz"
 RUN useradd -m -s /bin/bash fritz && \
    echo "fritz:qwerty" | chpasswd && \
-   usermod -aG sudo fritz && \
+   usermod -aG sudo,audio,video fritz && \
    echo "fritz ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 
 # 4. Install Miniconda as fritz (wget markdown syntax error fixed)
