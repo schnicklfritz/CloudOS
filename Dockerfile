@@ -61,7 +61,7 @@ RUN mkdir -p /home/fritz/.vnc && \
     chown -R fritz:fritz /home/fritz/.vnc
 
 USER fritz
-RUN echo "qwerty" | vncpasswd -f > /home/fritz/.vnc/passwd && \
+RUN echo -e "qwerty\nqwerty\n" | vncpasswd -w && \
     chmod 600 /home/fritz/.vnc/passwd
 USER root
 
