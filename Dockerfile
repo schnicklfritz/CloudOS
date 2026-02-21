@@ -8,7 +8,7 @@ ENV RESOLUTION=1920x1080
 RUN apt-get update && apt-get install -y --no-install-recommends \
     dbus-x11 openssh-server xvfb xfonts-base xfce4 xfce4-goodies xfce4-session \
     supervisor sudo ssh websockify osspd \
-    pulseaudio pavucontrol \
+    pulseaudio pavucontrol ssl-cert \
     netcat-openbsd git curl wget nano ffmpeg zip unzip htop build-essential \
     python3-pip python3-dev nodejs npm \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
@@ -40,7 +40,7 @@ USER root
 RUN apt-get update && apt-get install -y libyaml-tiny-perl libhash-merge-simple-perl liblist-moreutils-perl \
    libyaml-libyaml-perl libio-socket-ssl-perl libyaml-perl \
    libjson-perl libtry-tiny-perl libjson-xs-perl \
-   libfile-slurp-perl libfile-which-perl libipc-run-perl \
+   libfile-slurp-perl libfile-which-perl libswitch-perl libipc-run-perl \
    libwww-perl libhttp-message-perl \
    libhttp-daemon-perl libhttp-negotiate-perl \
    libdatetime-perl libdatetime-timezone-perl && \
