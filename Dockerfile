@@ -4,10 +4,10 @@ LABEL maintainer="schnicklfritz"
 ENV DEBIAN_FRONTEND=noninteractive
 ENV RESOLUTION=1920x1080
 
-# 1. Install minimal XFCE + KasmVNC + essentials (no TigerVNC/novnc needed)
+# 1. Install minimal XFCE + essentials
 RUN apt-get update && apt-get install -y --no-install-recommends \
     xfce4 xfce4-goodies xfce4-session \
-    kasmvnc-server supervisor sudo ssh \
+    supervisor sudo ssh \
     pulseaudio pavucontrol \
     netcat-openbsd git curl wget nano ffmpeg zip unzip htop build-essential \
     python3-pip python3-dev nodejs npm \
@@ -37,8 +37,13 @@ RUN wget -q "https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.
 ENV PATH="/home/fritz/miniconda3/bin:${PATH}"
 
 USER root
-# KasmVNC Install + Config (NEW - replaces TigerVNC)
-RUN apt-get update && apt-get install -y kasmvnc-server && apt-get clean && \
+# KasmVNC from GitHub .deb (not apt)
+RUN apt-get update && apt-get install -y wget gnupg && \
+    wget https://github.com/kasmtech/KasmVNC/releases/download/v1.4.0/kasmvncserver_jammy_1.4.0_amd64.deb && \
+    sudo dpkg -i kasmvncserver_jammy_1.4.0_amd64.deb && \
+    apt-get install -f -y && apt-get clean && \
+    rm kasmvncserver_jammy_1.4.0_amd64.deb
+
     mkdir -p /usr/share/novnc /defaults && \
     chown -R fritz:fritz /etc/kasmvnc /home/fritz && \
     echo "fritz:qwerty" | kasmvncpasswd -f > /home/fritz/.vnc/passwd && \
