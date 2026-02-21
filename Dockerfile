@@ -6,7 +6,7 @@ ENV RESOLUTION=1920x1080
 
 # 1. Install minimal XFCE + essentials
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    xfce4 xfce4-goodies xfce4-session \
+    dbus-x11 openssh-server xvfb xfonts-base xfce4 xfce4-goodies xfce4-session \
     supervisor sudo ssh \
     pulseaudio pavucontrol \
     netcat-openbsd git curl wget nano ffmpeg zip unzip htop build-essential \
@@ -40,11 +40,7 @@ USER root
 RUN apt-get update && apt-get install -y \
     libtry-tiny-perl libdatetime-perl libdatetime-timezone-perl \
     libwww-perl libjson-perl libfile-which-perl libipc-run-perl \
-    libnet-ssleay-perl libencode-locale-perl liburi-perl \
-    libhtml-parser-perl libhttp-message-perl libhttp-negotiate-perl \
-    liblwp-mediatypes-perl libio-socket-ssl-perl \
-    libterm-readkey-perl libauthen-dechex-perl libcrypt-des-perl \
-    libnet-smtp-ssl-perl dbus-x11 openssh-server && \
+    libio-socket-ssl-pearl && \
     wget https://github.com/kasmtech/KasmVNC/releases/download/v1.4.0/kasmvncserver_jammy_1.4.0_amd64.deb && \
     dpkg -i kasmvncserver_jammy_1.4.0_amd64.deb && \
     apt-get install -f -y && apt-get clean && rm *.deb \
