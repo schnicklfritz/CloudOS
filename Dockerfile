@@ -8,7 +8,7 @@ ENV RESOLUTION=1920x1080
 RUN apt-get update && apt-get install -y --no-install-recommends \
     xfce4 xfce4-goodies xfce4-session \
     supervisor sudo ssh \
-    libtry-tiny-perl libdatetime-perl libdatetime-timezone-perl pulseaudio pavucontrol \
+    pulseaudio pavucontrol \
     netcat-openbsd git curl wget nano ffmpeg zip unzip htop build-essential \
     python3-pip python3-dev nodejs npm \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
@@ -37,11 +37,17 @@ ENV PATH="/home/fritz/miniconda3/bin:${PATH}"
 
 USER root
 # KasmVNC from GitHub .deb (not apt)
-RUN apt-get update && apt-get install -y wget gnupg && \
+RUN apt-get update && apt-get install -y \
+    libtry-tiny-perl libdatetime-perl libdatetime-timezone-perl \
+    libwww-perl libjson-perl libfile-which-perl libipc-run-perl \
+    libnet-ssleay-perl libencode-locale-perl liburi-perl \
+    libhtml-parser-perl libhttp-message-perl libhttp-negotiate-perl \
+    liblwp-mediatypes-perl libio-socket-ssl-perl \
+    libterm-readkey-perl libauthen-dechex-perl libcrypt-des-perl \
+    libnet-smtp-ssl-perl dbus-x11 openssh-server && \
     wget https://github.com/kasmtech/KasmVNC/releases/download/v1.4.0/kasmvncserver_jammy_1.4.0_amd64.deb && \
-    sudo dpkg -i kasmvncserver_jammy_1.4.0_amd64.deb && \
-    apt-get install -f -y && apt-get clean && \
-    rm kasmvncserver_jammy_1.4.0_amd64.deb \
+    dpkg -i kasmvncserver_jammy_1.4.0_amd64.deb && \
+    apt-get install -f -y && apt-get clean && rm *.deb
     mkdir -p /usr/share/novnc /defaults && \
     chown -R fritz:fritz /etc/kasmvnc /home/fritz && \
     echo "fritz:qwerty" | kasmvncpasswd -f > /home/fritz/.vnc/passwd && \
