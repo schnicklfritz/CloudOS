@@ -8,7 +8,7 @@ ENV RESOLUTION=1920x1080
 RUN apt-get update && apt-get install -y --no-install-recommends \
     xfce4 xfce4-goodies xfce4-session \
     supervisor sudo ssh \
-    pulseaudio pavucontrol \
+    libtry-tiny-perl libdatetime-perl libdatetime-timezone-perl pulseaudio pavucontrol \
     netcat-openbsd git curl wget nano ffmpeg zip unzip htop build-essential \
     python3-pip python3-dev nodejs npm \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
