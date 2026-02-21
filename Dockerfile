@@ -7,7 +7,7 @@ ENV RESOLUTION=1920x1080
 # 1. Install minimal XFCE + essentials
 RUN apt-get update && apt-get install -y --no-install-recommends \
     dbus-x11 openssh-server xvfb xfonts-base xfce4 xfce4-goodies xfce4-session \
-    supervisor sudo ssh \
+    supervisor sudo ssh websockify osspd \
     pulseaudio pavucontrol \
     netcat-openbsd git curl wget nano ffmpeg zip unzip htop build-essential \
     python3-pip python3-dev nodejs npm \
@@ -37,10 +37,13 @@ ENV PATH="/home/fritz/miniconda3/bin:${PATH}"
 
 USER root
 # KasmVNC from GitHub .deb (not apt)
-RUN apt-get update && apt-get install -y \
-    libtry-tiny-perl libdatetime-perl libdatetime-timezone-perl \
-    libwww-perl libjson-perl libfile-which-perl libipc-run-perl \
-    libio-socket-ssl-perl && \
+RUN apt-get update && apt-get install -y libyaml-tiny-perl libhash-merge-simple-perl liblist-moreutils-perl \
+   libyaml-libyaml-perl libio-socket-ssl-perl libyaml-perl \
+   libjson-perl libtry-tiny-perl libjson-xs-perl \
+   libfile-slurp-perl libfile-which-perl libipc-run-perl \
+   libwww-perl libwww-simple-perl libhttp-message-perl \
+   libhttp-daemon-perl libhttp-negotiate-perl \
+   libdatetime-perl libdatetime-timezone-perl && \
     wget https://github.com/kasmtech/KasmVNC/releases/download/v1.4.0/kasmvncserver_jammy_1.4.0_amd64.deb && \
     dpkg -i kasmvncserver_jammy_1.4.0_amd64.deb && \
     apt-get install -f -y && apt-get clean && rm *.deb \
