@@ -55,7 +55,7 @@ RUN rm *.deb && \
     chown -R fritz:fritz /etc/kasmvnc /home/fritz
 
 RUN mkdir -p /home/fritz/.vnc && \
-    echo "fritz:qwerty" | kasmvncpasswd -f > /home/fritz/.vnc/passwd && \
+    echo -e "fritz:qwerty" | kasmvncpasswd -f > /home/fritz/.vnc/passwd && \
     chmod 600 /home/fritz/.vnc/passwd && \
     chown -R fritz:fritz /home/fritz/.vnc
 
