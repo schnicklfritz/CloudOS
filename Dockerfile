@@ -26,16 +26,18 @@ RUN useradd -m -s /bin/bash fritz && \
    usermod -aG sudo,audio,video fritz && \
    echo "fritz ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 
-# 4. Install Miniconda as fritz (wget markdown syntax error fixed)
+# 4. Install Miniconda and VNC Environment as fritz
 USER fritz
 WORKDIR /home/fritz
-RUN wget -q "https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh" -O /tmp/miniconda.sh && \
-   bash /tmp/miniconda.sh -b -p /home/fritz/miniconda3 && \
-   rm -f /tmp/miniconda.sh
 
-# Create VNC directory, dummy password, and xstartup script
+# Install Miniconda
+RUN wget -q "https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh" -O /tmp/miniconda.sh && \
+    bash /tmp/miniconda.sh -b -p /home/fritz/miniconda3 && \
+    rm -f /tmp/miniconda.sh
+
+# Create the dummy password file and xstartup script so TigerVNC boots
 RUN mkdir -p /home/fritz/.vnc && \
-    echo "password" | vncpasswd -f > /home/fritz/.vnc/passwd && \
+    touch /home/fritz/.vnc/passwd && \
     chmod 600 /home/fritz/.vnc/passwd && \
     echo '#!/bin/bash\nstartxfce4 &' > /home/fritz/.vnc/xstartup && \
     chmod +x /home/fritz/.vnc/xstartup
