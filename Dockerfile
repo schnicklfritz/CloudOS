@@ -52,8 +52,10 @@ RUN rm *.deb && \
     mkdir -p /usr/share/novnc /defaults && \
     chown -R fritz:fritz /etc/kasmvnc /home/fritz
 
-RUN echo "fritz:qwerty" | kasmvncpasswd -f > /home/fritz/.vnc/passwd && \
-    chmod 600 /home/fritz/.vnc/passwd
+RUN mkdir -p /home/fritz/.vnc && \
+    echo "fritz:qwerty" | kasmvncpasswd -f > /home/fritz/.vnc/passwd && \
+    chmod 600 /home/fritz/.vnc/passwd && \
+    chown -R fritz:fritz /home/fritz/.vnc
 
 # Copy configs
 COPY kasmvnc.yaml /etc/kasmvnc/kasmvnc.yaml
