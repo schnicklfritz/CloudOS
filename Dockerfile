@@ -42,7 +42,7 @@ RUN apt-get update && apt-get install -y libyaml-tiny-perl libhash-merge-simple-
    libjson-perl libtry-tiny-perl libjson-xs-perl \
    libfile-slurp-perl libfile-which-perl libipc-run-perl \
    libwww-perl libwww-simple-perl libhttp-message-perl \
-   libhttp-daemon-perl libhttp-negotiate-perl \
+   libhttp-daemon-perl libhttp-negotiate-perl libwww-simple-perl \
    libdatetime-perl libdatetime-timezone-perl && \
     wget https://github.com/kasmtech/KasmVNC/releases/download/v1.4.0/kasmvncserver_jammy_1.4.0_amd64.deb && \
     dpkg -i kasmvncserver_jammy_1.4.0_amd64.deb && \
