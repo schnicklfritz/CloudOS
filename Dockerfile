@@ -8,7 +8,7 @@ ENV RESOLUTION=1920x1080
 RUN apt-get update && apt-get install -y --no-install-recommends \
     dbus-x11 openssh-server xvfb xfonts-base xfce4 xfce4-goodies xfce4-session \
     supervisor sudo ssh websockify osspd \
-    pulseaudio pavucontrol ssl-cert \
+    pulseaudio novnc pavucontrol ssl-cert \
     netcat-openbsd git curl wget nano ffmpeg zip unzip htop build-essential \
     python3-pip python3-dev nodejs npm \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
@@ -46,10 +46,13 @@ RUN apt-get update && apt-get install -y libyaml-tiny-perl libhash-merge-simple-
    libdatetime-perl libdatetime-timezone-perl && \
     wget https://github.com/kasmtech/KasmVNC/releases/download/v1.4.0/kasmvncserver_jammy_1.4.0_amd64.deb && \
     dpkg -i kasmvncserver_jammy_1.4.0_amd64.deb && \
-    apt-get -f install && apt-get clean && rm *.deb \
+    apt-get -f install && apt-get clean
+
+RUN rm *.deb && \
     mkdir -p /usr/share/novnc /defaults && \
-    chown -R fritz:fritz /etc/kasmvnc /home/fritz && \
-    echo "fritz:qwerty" | kasmvncpasswd -f > /home/fritz/.vnc/passwd && \
+    chown -R fritz:fritz /etc/kasmvnc /home/fritz
+
+RUN echo "fritz:qwerty" | kasmvncpasswd -f > /home/fritz/.vnc/passwd && \
     chmod 600 /home/fritz/.vnc/passwd
 
 # Copy configs
