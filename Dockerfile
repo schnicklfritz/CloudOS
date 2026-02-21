@@ -37,6 +37,8 @@ ENV PATH="/home/fritz/miniconda3/bin:${PATH}"
 
 # 5. Configs & Entrypoint (Switch back to root to handle volume logic)
 USER root
+RUN mkdir -p /etc/tigervnc && \
+    echo '\$SecurityTypes = "None";' > /etc/tigervnc/vncserver-config-defaults
 COPY entrypoint.sh /entrypoint.sh
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 RUN chmod +x /entrypoint.sh
