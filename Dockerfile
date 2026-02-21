@@ -61,10 +61,8 @@ RUN mkdir -p /home/fritz/.vnc && \
     chown -R fritz:fritz /home/fritz/.vnc
 
 USER fritz
-RUN vncpasswd -u fritz -w << EOF
-    qwerty
-    qwerty
-    EOF
+RUN echo "qwerty" | vncpasswd -f > /home/fritz/.vnc/passwd && \
+    chmod 600 /home/fritz/.vnc/passwd
 USER root
 
 # Copy configs
