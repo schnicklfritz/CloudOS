@@ -35,10 +35,13 @@ RUN wget -q "https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.
 
 ENV PATH="/home/fritz/miniconda3/bin:${PATH}"
 
+# Tell VNC to launch the XFCE desktop
+RUN mkdir -p /home/fritz/.vnc && \
+    echo '#!/bin/bash\nstartxfce4 &' > /home/fritz/.vnc/xstartup && \
+    chmod +x /home/fritz/.vnc/xstartup
+
 # 5. Configs & Entrypoint (Switch back to root to handle volume logic)
 USER root
-RUN mkdir -p /etc/tigervnc && \
-    echo '\$SecurityTypes = "None";' > /etc/tigervnc/vncserver-config-defaults
 COPY entrypoint.sh /entrypoint.sh
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 RUN chmod +x /entrypoint.sh
