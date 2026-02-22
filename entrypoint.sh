@@ -1,8 +1,14 @@
 #!/bin/bash
 set -e
 
+rm -f /tmp/.X1-lock /tmp/.X11-unix/X1
+
 # GPU check (non-fatal)
 nvidia-smi || true
+
+mkdir -p /run/user/1000
+chown -R fritz:fritz /run/user/1000 /home/fritz
+chmod 700 /home.fritz/.vnc
 
 # SSH host keys
 mkdir -p /var/run/sshd
@@ -22,18 +28,18 @@ unset SESSION_MANAGER
 unset DBUS_SESSION_BUS_ADDRESS
 export XDG_SESSION_TYPE=x11
 export XDG_CURRENT_DESKTOP=XFCE
-exec startxfce4
+exec dbus-launch --exit-with-session startxfce4
 EOF
 chmod +x /home/fritz/.vnc/xstartup
 chown -R fritz:fritz /home/fritz/.vnc
 
 # Set VNC password via kasmvncpasswd (required - plaintext yaml doesn't work)
-echo -e "${FRITZ_PASS}\n${FRITZ_PASS}" | su -s /bin/bash fritz -c "kasmvncpasswd -u fritz -w /home/fritz/.vnc/kasmvnc.passwd" 2>/dev/null || \
-    su -s /bin/bash fritz -c "echo '${FRITZ_PASS}' | vncpasswd -f > /home/fritz/.vnc/passwd && chmod 600 /home/fritz/.vnc/passwd"
+echo -e "${FRITZ_PASS}\n${FRITZ_PASS}" | kasmvncpasswd -u fritz -w /home/fritz/.vnc/kasmvnc.passwd \
+
 
 # Fix permissions
-chown -R fritz:fritz /home/fritz
-chmod 700 /home/fritz/.vnc
+chown -R fritz:fritz /home/fritz/.vnc/kasmvnc.passwd
+chmod 600 /home/fritz/.vnc/kasmvnc.passwd
 
 # Copy default kasmvnc config if missing
 mkdir -p /etc/kasmvnc
