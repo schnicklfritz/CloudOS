@@ -1,11 +1,19 @@
-listen: 0.0.0.0
-port: 6901
-users:
-  - name: fritz
-    passwd: qwerty
-    roles: [user]
-    properties:
-      enable_hw_vnc: true
-      hw_video_encoding: h264
-      desktop: XFCE
-max_clients: 5
+network:
+  protocol: http
+  websocket_port: 6901
+  ssl:
+    enable_https: false
+
+desktop:
+  resolution:
+    width: 1920
+    height: 1080
+  allow_resize: true
+
+encoding:
+  max_frame_rate: 30
+  full_color_depth: 32
+
+server:
+  allow_remote_connections: true
+  auto_shutdown: false
