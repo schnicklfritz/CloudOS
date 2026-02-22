@@ -60,11 +60,6 @@ RUN mkdir -p /home/fritz/.vnc && \
     chmod 600 /home/fritz/.vnc/kasmvnc.passwd && \
     chown -R fritz:fritz /home/fritz/.vnc
 
-USER fritz
-RUN echo -e "qwerty\nqwerty\n" | vncpasswd -u fritz && \
-    chmod 600 /home/fritz/.vnc/passwd
-USER root
-
 # Copy configs
 COPY kasmvnc.yaml /etc/kasmvnc/kasmvnc.yaml
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
