@@ -8,7 +8,7 @@ nvidia-smi || true
 
 mkdir -p /run/user/1000
 chown -R fritz:fritz /run/user/1000 /home/fritz
-chmod 700 /home.fritz/.vnc
+chmod 700 /home/fritz/.vnc
 
 # SSH host keys
 mkdir -p /var/run/sshd
