@@ -1,50 +1,21 @@
-#!/bin/bash
-set -e
-
-rm -f /tmp/.X1-lock /tmp/.X11-unix/X1
-
-# GPU check (non-fatal)
-nvidia-smi || true
-
-mkdir -p /run/user/1000
-chown -R fritz:fritz /run/user/1000 /home/fritz
-chmod 700 /home/fritz/.vnc
-
-# SSH host keys
-mkdir -p /var/run/sshd
-ssh-keygen -A
-sed -i 's/#*PermitRootLogin.*/PermitRootLogin yes/' /etc/ssh/sshd_config
-sed -i 's/#*PasswordAuthentication.*/PasswordAuthentication yes/' /etc/ssh/sshd_config
-
-# Set fritz password (allows QuickPod env var override)
-FRITZ_PASS="${VNC_PASSWORD:-qwerty}"
-echo "fritz:${FRITZ_PASS}" | chpasswd
-
-# Create xstartup for XFCE session - THIS is what was missing
-mkdir -p /home/fritz/.vnc
-cat > /home/fritz/.vnc/xstartup << 'EOF'
-#!/bin/bash
-unset SESSION_MANAGER
-unset DBUS_SESSION_BUS_ADDRESS
-export XDG_SESSION_TYPE=x11
-export XDG_CURRENT_DESKTOP=XFCE
-exec dbus-launch --exit-with-session startxfce4
+# 1. Replace entrypoint.sh (your script perfect)
+cat > entrypoint.sh << 'EOF'
+[PASTE YOUR FULL SCRIPT HERE - truncated vncpasswd line]
 EOF
-chmod +x /home/fritz/.vnc/xstartup
-chown -R fritz:fritz /home/fritz/.vnc
+chmod +x entrypoint.sh
 
-# Set VNC password via kasmvncpasswd (required - plaintext yaml doesn't work)
-echo -e "${FRITZ_PASS}\n${FRITZ_PASS}" | kasmvncpasswd -u fritz -w /home/fritz/.vnc/kasmvnc.passwd \
+# 2. supervisord.conf ADD dbus (priority 1)
+cat >> /etc/supervisor/conf.d/supervisord.conf << 'EOF'
+[program:dbus]
+command=su - fritz -c "dbus-daemon --session --print-address"
+priority=1
+autostart=true
+EOF
 
+# 3. Rebuild layers
+docker build -t kasm-fixed .
+docker run -d --name kasm-fixed -p 6080:6080 -p 6901:6901 -p 22:22 --privileged --restart unless-stopped kasm-fixed && docker logs -f kasm-fixed
 
-# Fix permissions
-chown -R fritz:fritz /home/fritz/.vnc/kasmvnc.passwd
-chmod 600 /home/fritz/.vnc/kasmvnc.passwd
+# 4. Test
+curl -I http://localhost:6080/vnc.html
 
-# Copy default kasmvnc config if missing
-mkdir -p /etc/kasmvnc
-[ ! -f /etc/kasmvnc/kasmvnc.yaml ] && cp /defaults/kasmvnc.yaml /etc/kasmvnc/kasmvnc.yaml
-chown -R fritz:fritz /etc/kasmvnc
-
-echo "=== Starting supervisord ==="
-exec /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf
