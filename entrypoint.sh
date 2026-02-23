@@ -1,6 +1,6 @@
 # 1. Replace entrypoint.sh (your script perfect)
 cat > entrypoint.sh << 'EOF'
-[PASTE YOUR FULL SCRIPT HERE - truncated vncpasswd line]
+echo -e "${FRITZ_PASS}\n${FRITZ_PASS}" | su - fritz -c "kasmvncpasswd -w /home/fritz/.vnc/kasmvnc.passwd"
 EOF
 chmod +x entrypoint.sh
 
