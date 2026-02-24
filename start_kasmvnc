@@ -1,34 +1,34 @@
 #!/bin/bash
 
-USER="${USER:-fritz}"
-PASSWORD="${PASSWORD:-qwerty}"
-VNC_PORT="${VNC_PORT:-6901}"
+USER="${USER:-quickpod}"
+PASSWORD="${PASSWORD:-abcd1234}"
+VNC_PORT="${VNC_PORT:-4000}"
 VNC_THREADS="${VNC_THREADS:-4}"
+HTTPS_CERT="${HTTPS_CERT:-/etc/ssl/certs/ssl-cert-snakeoil.pem}"
+HTTPS_CERT_KEY="${HTTPS_CERT_KEY:-/etc/ssl/private/ssl-cert-snakeoil.key}"
 
 # Set VNC password on first run
 if [ ! -f "/home/${USER}/.vnc/passwd" ]; then
     su "$USER" -c "printf '%s\n%s\n' '${PASSWORD}' '${PASSWORD}' | kasmvncpasswd -u ${USER} -o -w -r"
 fi
 
-# Clean stale locks from any previous run
+# Clean stale locks
 rm -rf /tmp/.X1000-lock /tmp/.X11-unix/X1000
 
-# Start KasmVNC
-# -select-de xfce  → writes xstartup with "xset s off && startxfce4"
-# -interface 0.0.0.0 → bind all interfaces (required for QuickPod port mapping)
-# -websocketPort   → the port QuickPod exposes
-# No SSL here — QuickPod's proxy handles TLS
+# Mirror the working template exactly:
+# -websocketPort 4000, SSL on, connect via HTTPS
 su "$USER" -c "kasmvncserver :1000 \
     -select-de xfce \
     -interface 0.0.0.0 \
     -websocketPort ${VNC_PORT} \
+    -cert ${HTTPS_CERT} \
+    -key ${HTTPS_CERT_KEY} \
     -RectThreads ${VNC_THREADS}"
 
-# Start pulseaudio for the user
 su "$USER" -c "pulseaudio --start --exit-idle-time=-1"
 
-echo "=== KasmVNC started on port ${VNC_PORT} ==="
+echo "=== KasmVNC running on port ${VNC_PORT} (HTTPS) ==="
+echo "=== Connect via: https://POD_IP:${VNC_PORT} ==="
 echo "=== Login: ${USER} / ${PASSWORD} ==="
 
-# Keep container alive and stream logs
 tail -f "/home/${USER}/.vnc/"*.log

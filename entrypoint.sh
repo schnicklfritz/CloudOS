@@ -1,10 +1,8 @@
 #!/bin/bash
 
-## ── one-time init ──────────────────────────────────────────────────────────
 if [ ! -f "/init_flag" ]; then
-
-    USER="${USER:-fritz}"
-    PASSWORD="${PASSWORD:-qwerty}"
+    USER="${USER:-quickpod}"
+    PASSWORD="${PASSWORD:-abcd1234}"
     UID_VAL="${UID:-1000}"
     GID_VAL="${GID:-1000}"
 
@@ -12,6 +10,7 @@ if [ ! -f "/init_flag" ]; then
 
     groupadd -g "$GID_VAL" "$USER" 2>/dev/null || true
     useradd --create-home --no-log-init -u "$UID_VAL" -g "$GID_VAL" "$USER" 2>/dev/null || true
+    # ssl-cert group is REQUIRED — lets user read /etc/ssl/private/ssl-cert-snakeoil.key
     usermod -aG sudo,ssl-cert "$USER"
     chsh -s /bin/bash "$USER"
 
@@ -23,15 +22,17 @@ if [ ! -f "/init_flag" ]; then
     echo "ok" > /init_flag
 fi
 
-USER="${USER:-fritz}"
-PASSWORD="${PASSWORD:-qwerty}"
+USER="${USER:-quickpod}"
+PASSWORD="${PASSWORD:-abcd1234}"
+REMOTE_DESKTOP="${REMOTE_DESKTOP:-kasmvnc}"
 
-## ── SSH ────────────────────────────────────────────────────────────────────
 ssh-keygen -A
 /usr/sbin/sshd
-
-## ── dbus ───────────────────────────────────────────────────────────────────
 /etc/init.d/dbus start
 
-## ── KasmVNC ────────────────────────────────────────────────────────────────
-bash /start_kasmvnc.sh
+if [ "${REMOTE_DESKTOP}" = "kasmvnc" ]; then
+    bash /start_kasmvnc.sh
+else
+    echo "REMOTE_DESKTOP=${REMOTE_DESKTOP} not supported"
+    tail -f /dev/null
+fi
