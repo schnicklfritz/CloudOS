@@ -2,69 +2,55 @@ FROM nvidia/cuda:12.4.1-devel-ubuntu22.04
 
 LABEL maintainer="schnicklfritz"
 ENV DEBIAN_FRONTEND=noninteractive
-ENV RESOLUTION=1920x1080
-ENV VNC_PASSWORD=qwerty
 
-# 1. Base packages + ssl-cert (MUST be installed before KasmVNC)
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    ssl-cert \
-    dbus dbus-x11 \
-    openssh-server \
-    xauth xfonts-base \
-    xfce4 xfce4-goodies xfce4-session xfce4-terminal \
-    supervisor sudo \
-    pulseaudio pavucontrol \
-    netcat-openbsd git curl wget nano ffmpeg zip unzip htop build-essential \
-    python3-pip python3-dev nodejs npm \
-    && apt-get clean && rm -rf /var/lib/apt/lists/*
+# Stage 1: pre-install (mirrors working pre_install.sh exactly)
+RUN apt-get update && \
+    apt-get install -y sudo vim gedit locales gnupg2 wget curl zip lsb-release bash-completion && \
+    apt-get install -y net-tools iputils-ping mesa-utils software-properties-common build-essential && \
+    apt-get install -y python3 python3-pip python3-numpy && \
+    apt-get install -y openssh-server openssl git git-lfs tmux && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# 2. Setup user fritz (BEFORE KasmVNC install so we can add to ssl-cert)
-RUN groupadd -r fritz && \
-    useradd -r -m -s /bin/bash -g fritz fritz && \
-    echo "fritz:qwerty" | chpasswd && \
-    usermod -aG sudo,audio,video,ssl-cert fritz && \
-    echo "fritz ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers.d/fritz && \
-    chmod 0440 /etc/sudoers.d/fritz
+# Stage 2: desktop packages (exact order from working history log)
+RUN apt-get update && \
+    apt-get install -y xfce4 terminator fonts-wqy-zenhei ffmpeg firefox dbus-x11 && \
+    apt-get install -y ssl-cert && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# 3. KasmVNC — install AFTER ssl-cert and user exist
-RUN apt-get update && apt-get install -y \
-    libyaml-tiny-perl libhash-merge-simple-perl liblist-moreutils-perl \
-    libyaml-libyaml-perl libio-socket-ssl-perl libyaml-perl \
-    libjson-perl libtry-tiny-perl libjson-xs-perl \
-    libfile-slurp-perl libfile-which-perl libswitch-perl libipc-run-perl \
-    libwww-perl libhttp-message-perl libhttp-daemon-perl libhttp-negotiate-perl \
-    libdatetime-perl libdatetime-timezone-perl \
-    && wget -q https://github.com/kasmtech/KasmVNC/releases/download/v1.4.0/kasmvncserver_jammy_1.4.0_amd64.deb \
-    && dpkg -i kasmvncserver_jammy_1.4.0_amd64.deb \
-    && apt-get -f install -y \
-    && apt-get clean && rm -rf /var/lib/apt/lists/* *.deb
+# Stage 3: KasmVNC (mirrors working install_kasmvnc.sh)
+RUN apt-get update && \
+    codename=$(lsb_release --short --codename) && \
+    version=1.3.2 && \
+    arch=$(dpkg --print-architecture) && \
+    curl -fSL "https://github.com/kasmtech/KasmVNC/releases/download/v${version}/kasmvncserver_${codename}_${version}_${arch}.deb" \
+        -o /tmp/kasmvncserver.deb && \
+    apt-get install -y /tmp/kasmvncserver.deb && \
+    rm /tmp/kasmvncserver.deb && \
+    sed -i 's/exec xfce4-session/xset s off;&/' /usr/lib/kasmvncserver/select-de.sh && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# 4. Miniconda as fritz
-USER fritz
-WORKDIR /home/fritz
+# Stage 4: Miniconda (system-wide so any user can use it)
 RUN wget -q "https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh" -O /tmp/miniconda.sh && \
-    bash /tmp/miniconda.sh -b -p /home/fritz/miniconda3 && \
-    rm -f /tmp/miniconda.sh
-ENV PATH="/home/fritz/miniconda3/bin:${PATH}"
+    bash /tmp/miniconda.sh -b -p /opt/miniconda3 && \
+    rm -f /tmp/miniconda.sh && \
+    /opt/miniconda3/bin/conda init bash
+ENV PATH="/opt/miniconda3/bin:${PATH}"
 
-USER root
+# Stage 5: nodejs/npm extras
+RUN apt-get update && \
+    apt-get install -y nodejs npm && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# 5. Prep dirs
-RUN mkdir -p /defaults /etc/kasmvnc /home/fritz/.vnc && \
-    touch /home/fritz/.vnc/kasmvnc.passwd && \
-    chmod 600 /home/fritz/.vnc/kasmvnc.passwd && \
-    chown -R fritz:fritz /home/fritz/.vnc /etc/kasmvnc
+# Copy startup scripts
+COPY docker_config/ /docker_config/
+RUN chmod +x /docker_config/*.sh
 
-# 6. Pass fritz's UID into supervisord env
-RUN echo "FRITZ_UID=$(id -u fritz)" >> /etc/environment
+# SSH config
+RUN mkdir -p /var/run/sshd && \
+    sed -i 's/#*PermitRootLogin.*/PermitRootLogin yes/' /etc/ssh/sshd_config && \
+    sed -i 's/#*PasswordAuthentication.*/PasswordAuthentication yes/' /etc/ssh/sshd_config
 
-# 7. Copy configs
-COPY kasmvnc.yaml /defaults/kasmvnc.yaml
-COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
-COPY entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
+# QuickPod: 6901=KasmVNC web, 22=SSH, 8188=ComfyUI, 7860=Gradio, 8888=Jupyter
+EXPOSE 22 6901 8188 7860 8888
 
-# QuickPod: map port 6901 as HTTP service
-EXPOSE 22 6901 8081 8188 7860 8888
-
-ENTRYPOINT ["/entrypoint.sh"]
+ENTRYPOINT ["/docker_config/entrypoint.sh"]

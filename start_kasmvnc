@@ -1,0 +1,34 @@
+#!/bin/bash
+
+USER="${USER:-fritz}"
+PASSWORD="${PASSWORD:-qwerty}"
+VNC_PORT="${VNC_PORT:-6901}"
+VNC_THREADS="${VNC_THREADS:-4}"
+
+# Set VNC password on first run
+if [ ! -f "/home/${USER}/.vnc/passwd" ]; then
+    su "$USER" -c "printf '%s\n%s\n' '${PASSWORD}' '${PASSWORD}' | kasmvncpasswd -u ${USER} -o -w -r"
+fi
+
+# Clean stale locks from any previous run
+rm -rf /tmp/.X1000-lock /tmp/.X11-unix/X1000
+
+# Start KasmVNC
+# -select-de xfce  → writes xstartup with "xset s off && startxfce4"
+# -interface 0.0.0.0 → bind all interfaces (required for QuickPod port mapping)
+# -websocketPort   → the port QuickPod exposes
+# No SSL here — QuickPod's proxy handles TLS
+su "$USER" -c "kasmvncserver :1000 \
+    -select-de xfce \
+    -interface 0.0.0.0 \
+    -websocketPort ${VNC_PORT} \
+    -RectThreads ${VNC_THREADS}"
+
+# Start pulseaudio for the user
+su "$USER" -c "pulseaudio --start --exit-idle-time=-1"
+
+echo "=== KasmVNC started on port ${VNC_PORT} ==="
+echo "=== Login: ${USER} / ${PASSWORD} ==="
+
+# Keep container alive and stream logs
+tail -f "/home/${USER}/.vnc/"*.log
